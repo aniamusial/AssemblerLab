@@ -35,10 +35,9 @@ syscall
 
 dec %rdi    # "/n" 
 mov $0, %rdi    # wyzerowanie licznika
-jmp petla
+jmp czy_poprawna
  
-petla:
-mov $0, %rax              
+czy_poprawna:            
 mov textin(, %rdi, 1), %bl 
 sub $POCZATEK_LICZB, %bl  
 cmp $PODSTAWA_SYSTEMU, %bl

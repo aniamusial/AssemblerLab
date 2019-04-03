@@ -12,7 +12,6 @@ SYSEXIT = 60
 EXIT_SUCCESS = 0
 BUFLEN = 512
 PODSTAWA_SYSTEMU = 3
-POCZATEK_LICZB = 0x30               # 0x30 = znak (char) 0 w ASCII i 48 w decymalnym
 
 niepoprawna: .ascii "Liczba nie jest zapisana w systemie 3kowym \n"
 niepoprawna_len = .-niepoprawna
@@ -27,6 +26,7 @@ poprawna_len = .-poprawna
 .globl _start
 
 _start:
+nop
 movq $SYSREAD, %rax      # w rax LICZBA znakow wczytanych
 movq $STDIN, %rdi
 movq $textin, %rsi
@@ -35,13 +35,15 @@ syscall
 
 dec %rdi    # "/n" 
 mov $0, %rdi    # wyzerowanie licznika
-jmp czy_poprawna
  
-czy_poprawna:            
-mov textin(, %rdi, 1), %bl 
-sub $POCZATEK_LICZB, %bl  
-cmp $PODSTAWA_SYSTEMU, %bl
+czy_poprawna:
+movb textin(, %rdi, 1),%bl 
+sub $0x30, %bl        # konwersja ze znaku do liczby - odejmujemy 0 w ASCII
+cmp $PODSTAWA_SYSTEMU, %bl  # jezeli wartosc rejestru %bl wieksza lub rowna 3, to liczba nie jest poprawnie zapisana
 jge wyswietl_niepoprawna
+inc %rdi
+cmp %rax, %rdi
+jl czy_poprawna
 
 wyswietl_poprawna:
 movq $SYSWRITE, %rax
@@ -57,7 +59,6 @@ movq $STDOUT, %rdi
 movq $niepoprawna, %rsi
 movq $niepoprawna_len, %rdx
 syscall
-jmp koniec
 
 koniec:
 mov $SYSEXIT, %rax

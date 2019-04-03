@@ -2,6 +2,8 @@
 # - rejestry 64-bitowe, liczba zapisana w stałej
 # - odpowiedni komunikat
 
+# Zalozenia poczatkowe: Liczba jest pierwsza, kiedy jej reszta z dzielenia przez 1 i przez siebie samą wynosi 0.
+
 
 .data
 STDIN = 0
@@ -12,7 +14,7 @@ SYSEXIT = 60
 STDOUT = 1
 STDIN = 0
 EXIT_SUCCESS = 0
-LICZBA = 7
+LICZBA = 99
 
 komzlozona: .ascii "Liczba nie jest pierwsza! \n"
 komzlozona_len = .-komzlozona
@@ -24,7 +26,7 @@ kompierwsza_len = .-kompierwsza
 .globl _start
 
 _start:
-
+nop
 movq $LICZBA, %rdx
 cmp $1, %rdx
 jle wyswietl_komunikat
@@ -33,16 +35,16 @@ movq $LICZBA, %rdx
 cmp $2, %rdx
 je wyswietl_poprawna
 
-mov $1, %rdi
+movq $1, %rdi        
 
-petla: 
+petla:              # petla szuka, czy liczba ma jakies dzielniki i wyswietla odpowiedni komunikat jesli ma/nie ma
 inc %rdi
-cmp $LICZBA, %rdi
+cmp $LICZBA, %rdi   # jeżeli licznik jest równy zadanej liczbie to koniec pętli i liczba jest pierwsza
 je wyswietl_poprawna
 
-movq $LICZBA, %rax  # liczba w rax
+movq $LICZBA, %rax  
 movq $0, %rdx       # wyczyszczenie reszty
-div %rdi            # wykonaj dzielenie dx:ax przez rdi i zapisz do tego rejestru 
+div %rdi            # wykonaj dzielenie dx:ax przez rdi, iloraz w rax, reszta w rdx
 
 cmp $0, %rdx      
 je wyswietl_komunikat
@@ -55,7 +57,6 @@ movq $komzlozona, %rsi
 movq $komzlozona_len, %rdx
 syscall
 jmp koniec
-
 
 wyswietl_poprawna:
 movq $SYSWRITE, %rax
